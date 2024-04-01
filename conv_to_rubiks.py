@@ -88,39 +88,45 @@ def dls(node, path, limit, face, debug=False):  #function for dfs
     
     if is_sln(node,face):
         print("\tFound Target State: {goal} at moveset {path}".format(goal=node, path=path))
-        return True
+        return True, path
         
     if limit <= 0:
-        return False
+        return False, None
         
     #if node not in visited:
-
-    for move in MOVE_SET:
+    # randomize the order of the moves
+    move_order = MOVE_SET.copy()
+    random.shuffle(move_order)
+    for move in move_order:
         neighbour=Cube(do_move(node, move))
         
         if neighbour.flat_str() not in visited_nodes:
             
             #print(f"Visiting {neighbour.flat_str()} with move {move} at depth {limit}")
-            
-            if dls(neighbour, path+(move,), limit-1, face):
-                return True
+            solved, path_s = dls(neighbour, path+(move,), limit-1, face)
+            if solved:
+                return True, path_s
         #print(f"Skipping {neighbour.flat_str()} with move {move} at depth {limit}")
           
-    return False
+    return False, None
 
 
-def iddfs(start_state, max_depth, face): 
+def iddfs(start_state, max_depth, face, debug=False): 
     for depth in range(1, max_depth+1):
-        print("\tExec Depth of {depth}".format(depth=depth))
+        if debug:
+            print("\tExec Depth of {depth}".format(depth=depth))
         # clear visited nodes
         visited_nodes.clear()
-        if not dls(start_state, tuple(), depth, face):
-            print(f"No Solution Found at Depth {depth}, {len(visited_nodes)} nodes visited")
+        solved, path = dls(start_state, tuple(), depth, face)
+        if not solved:
+            if debug:
+                print(f"No Solution Found at Depth {depth}, {len(visited_nodes)} nodes visited")
         else:
-            return
-    print('No Solution Found at All')
+            return True, path
+    if debug:
+        print('No Solution Found at All')
     
-    return False
+    return False, None
 
 
 def main():
