@@ -77,11 +77,10 @@ def random_walk(c, ntimes=100):
         getattr(c, move)()
     return path
         
-visited_nodes = set()
 
 limit_2_depth=lambda limit: MAX_DEPTH - limit
 
-def dls(node, path, limit, face, debug=False):  #function for dfs 
+def dls(node, path, limit, face, visited_nodes, debug=False):  #function for dfs 
     visited_nodes.add(node.flat_str())         
     
     if debug: print("depth - {depth} - {path}".format(depth=limit_2_depth(limit), path=path))
@@ -103,7 +102,7 @@ def dls(node, path, limit, face, debug=False):  #function for dfs
         if neighbour.flat_str() not in visited_nodes:
             
             #print(f"Visiting {neighbour.flat_str()} with move {move} at depth {limit}")
-            solved, path_s = dls(neighbour, path+(move,), limit-1, face)
+            solved, path_s = dls(neighbour, path+(move,), limit-1, face, visited_nodes)
             if solved:
                 return True, path_s
         #print(f"Skipping {neighbour.flat_str()} with move {move} at depth {limit}")
@@ -112,12 +111,13 @@ def dls(node, path, limit, face, debug=False):  #function for dfs
 
 
 def iddfs(start_state, max_depth, face, debug=False): 
+    visited_nodes = set()
     for depth in range(1, max_depth+1):
         if debug:
             print("\tExec Depth of {depth}".format(depth=depth))
         # clear visited nodes
         visited_nodes.clear()
-        solved, path = dls(start_state, tuple(), depth, face)
+        solved, path = dls(start_state, tuple(), depth, face, visited_nodes)
         if not solved:
             if debug:
                 print(f"No Solution Found at Depth {depth}, {len(visited_nodes)} nodes visited")
